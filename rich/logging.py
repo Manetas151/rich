@@ -90,7 +90,7 @@ class RichHandler(Handler):
     ) -> None:
         super().__init__(level=level)
         self.console = console or get_console()
-        self.highlighter = highlighter or self.HIGHLIGHTER_CLASS()
+        self.highlighter = highlighter or self.console.highlighter or self.HIGHLIGHTER_CLASS()
         self._log_render = LogRender(
             show_time=show_time,
             show_level=show_level,
