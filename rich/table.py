@@ -9,6 +9,7 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    Any,
 )
 
 from . import box, errors
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
         RenderableType,
         RenderResult,
     )
+    from pandas import DataFrame
 
 
 @dataclass
@@ -519,37 +521,36 @@ class Table(JupyterMixin):
                 style=Style.pick_first(self.caption_style, "table.caption"),
                 justify=self.caption_justify,
             )
-    
+
     @classmethod
     def from_pandas(
-        cls, 
-        dataframe: "Any", 
-        show_index: bool = False, 
-        **kwargs: "Any"
+        cls,
+        dataframe: "DataFrame",
+        show_index: bool = False,
+        show_lines: bool = True,
+        row_styles: "Any" = None,
+        **kwargs: "Any",
     ) -> "Table":
         """Create a rich Table from a pandas DataFrame.
-        
+
         Args:
             dataframe: A pandas DataFrame.
             show_index (bool): Whether to include the DataFrame index as a column.
             **kwargs: Extra arguments passed to the Table constructor.
         """
-        # 1. Create a new Table instance
-        table = cls(**kwargs)
 
-        # 2. Add the columns
+        if row_styles is None:
+            row_styles = ["cyan", "magenta"]
+
+        table = cls(show_lines=show_lines, row_styles=row_styles, **kwargs)
+
         if show_index:
-            # If they want the index, add a column for it (usually nameless)
-            table.add_column("") 
-        
+            table.add_column("")
+
         for col_name in dataframe.columns:
             table.add_column(str(col_name))
 
-        # 3. Add the rows
-        # itertuples() is a fast way to loop through pandas rows
         for row in dataframe.itertuples(index=show_index):
-            # Convert every item in the row to a string, because 
-            # rich.Table expects strings or renderables, not integers/floats
             row_strings = [str(item) for item in row]
             table.add_row(*row_strings)
 

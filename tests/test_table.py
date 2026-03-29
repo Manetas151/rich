@@ -406,6 +406,21 @@ def test_padding_width():
     assert output == expected
 
 
+pd = pytest.importorskip("pandas")
+
+
+def test_from_pandas():
+
+    df = pd.DataFrame({"Name": ["Alice", "Bob"], "Age": [25, 30]})
+
+    table = Table.from_pandas(df)
+
+    assert len(table.columns) == 2
+    assert table.columns[0].header == "Name"
+    assert table.columns[1].header == "Age"
+    assert table.row_styles == ["cyan", "magenta"]
+
+
 if __name__ == "__main__":
     render = render_tables()
     print(render)
